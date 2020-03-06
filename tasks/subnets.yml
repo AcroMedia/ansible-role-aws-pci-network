@@ -16,10 +16,12 @@
   register: public_subnet_result
 
 - debug:
-    var: public_subnet_result.results |length()
+    var: public_subnet_result
+  when: aws_dump_registered_vars == true
 
 - debug:
-    var: public_subnet_result['results']| map(attribute='subnet') | map(attribute='id')|list
+    var: public_subnet_result['results'] | map(attribute='subnet') | map(attribute='id') | list
+  when: aws_dump_registered_vars == true
 
 - name: Create private VPC subnets
   ec2_vpc_subnet:
@@ -35,5 +37,7 @@
     state: present
   with_items: "{{ aws_vpc_private_subnets }}"
   register: private_subnet_result
+
 - debug:
     var: private_subnet_result
+  when: aws_dump_registered_vars == true

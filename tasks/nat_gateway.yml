@@ -18,6 +18,7 @@
 
 - debug:
     var: nat_gateway_result
+  when: aws_dump_registered_vars == true
 
 - name: Tag the NAT gateway
   ec2_tag:
@@ -31,6 +32,7 @@
 
 - debug:
     var: ngw_tag_result
+  when: aws_dump_registered_vars == true
 
 - name: Tag the elastic IP(s) created by the NAT gateway
   ec2_tag:
@@ -45,3 +47,4 @@
 
 - debug:
     var: ngw_eip_tag_result
+  when: aws_dump_registered_vars == true

@@ -13,3 +13,4 @@
 
 - debug:
     var: igw_result
+  when: aws_dump_registered_vars == true

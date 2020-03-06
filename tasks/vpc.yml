@@ -17,3 +17,4 @@
 
 - debug:
     var: vpc_result
+  when: aws_dump_registered_vars == true

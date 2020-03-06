@@ -17,18 +17,16 @@
     region: "{{ aws_vpc_region }}"
     filters:
       vpc_id: "{{ vpc_result.vpc.id }}"
-  register: route_table_info
+  register: route_table_info_result
 
 - debug:
-    var: route_table_info
-
-- debug:
-    var: route_table_info.route_tables | length()
+    var: route_table_info_result
+  when: aws_dump_registered_vars == true
 
 - name: Get the default route table ID
   set_fact:
     primary_route_table_id: "{%
-      for tbl in route_table_info.route_tables %}{%
+      for tbl in route_table_info_result.route_tables %}{%
         for assoc in tbl.associations %}{%
           if assoc.main == true
             %}{{ assoc.route_table_id }}{%
@@ -36,8 +34,10 @@
         endfor %}{%
       endfor
       %}"
+
 - debug:
     var: primary_route_table_id
+  when: aws_dump_registered_vars == true
 
 - name: Tag the primary/public route table
   ec2_tag:
@@ -51,6 +51,7 @@
 
 - debug:
     var: pubroute_tag_result
+  when: aws_dump_registered_vars == true
 
 - name: Add private route table
   ec2_vpc_route_table:
@@ -63,8 +64,10 @@
     routes:
       - dest: 0.0.0.0/0
         gateway_id: "{{ nat_gateway_result.nat_gateway_id }}"
-  when: (route_table_info.route_tables | length()) < 2
-  register: private_route_table
+  when: (route_table_info_result.route_tables | length()) < 2
+  register: private_route_table_result     #  After this is created, the info will be accessible from "route_table_info_result" above.
 
 - debug:
-    var: private_route_table
+    var: private_route_table_result
+  when: private_route_table_result is defined
+    and aws_dump_registered_vars == true
