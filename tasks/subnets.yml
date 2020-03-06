@@ -1,0 +1,39 @@
+---
+# Depends on: vpc.yml
+- name: Create public VPC subnets
+  ec2_vpc_subnet:
+    region: "{{ aws_vpc_region }}"
+    vpc_id: "{{ vpc_result.vpc.id }}"
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_key }}"
+    cidr: "{{ item.cidr }}"
+    map_public: yes
+    az: "{{ item.az }}"
+    tags: "{{ aws_billing_tags |combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' public subnet ' + item.az})  }}"
+    purge_tags: no
+    state: present
+  with_items: "{{ aws_vpc_public_subnets }}"
+  register: public_subnet_result
+
+- debug:
+    var: public_subnet_result.results |length()
+
+- debug:
+    var: public_subnet_result['results']| map(attribute='subnet') | map(attribute='id')|list
+
+- name: Create private VPC subnets
+  ec2_vpc_subnet:
+    region: "{{ aws_vpc_region }}"
+    vpc_id: "{{ vpc_result.vpc.id }}"
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_key }}"
+    cidr: "{{ item.cidr }}"
+    map_public: no
+    az: "{{ item.az }}"
+    tags: "{{ aws_billing_tags |combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' private subnet ' + item.az})  }}"
+    purge_tags: no
+    state: present
+  with_items: "{{ aws_vpc_private_subnets }}"
+  register: private_subnet_result
+- debug:
+    var: private_subnet_result

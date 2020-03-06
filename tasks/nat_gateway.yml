@@ -1,0 +1,47 @@
+---
+# Depends on: sbunets.yml
+
+# ec2_vpc_nat_gateway doesnt support tags yet:
+# - See: https://github.com/ansible/ansible/issues/44339
+# - See: https://github.com/ansible/ansible/pull/46624
+
+- name: Create an NAT gateway to provide internet resources on the private network can access
+  ec2_vpc_nat_gateway:
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_key }}"
+    region: "{{ aws_vpc_region }}"
+    # tags: ec2_vpc_nat_gateway doesnt support tags yet... See ec2_tag task below
+    if_exist_do_not_create: true
+    state: present
+    subnet_id: "{{ public_subnet_result['results'][0]['subnet']['id'] }}"    # just use the ID of the first public subnet. It's pretty arbitrary
+  register: nat_gateway_result
+
+- debug:
+    var: nat_gateway_result
+
+- name: Tag the NAT gateway
+  ec2_tag:
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_key }}"
+    region: "{{ aws_vpc_region }}"
+    resource: "{{ nat_gateway_result.nat_gateway_id }}"
+    state: present
+    tags: "{{ aws_billing_tags | combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' NAT gateway'}) }}"
+  register: ngw_tag_result
+
+- debug:
+    var: ngw_tag_result
+
+- name: Tag the elastic IP(s) created by the NAT gateway
+  ec2_tag:
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_key }}"
+    region: "{{ aws_vpc_region }}"
+    resource: "{{ item.allocation_id }}"
+    state: present
+    tags: "{{ aws_billing_tags | combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' Nat Gateway EIP'}) }}"
+  with_items: "{{ nat_gateway_result.nat_gateway_addresses }}"
+  register: ngw_eip_tag_result
+
+- debug:
+    var: ngw_eip_tag_result

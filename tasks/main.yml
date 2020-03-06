@@ -1,0 +1,6 @@
+---
+- import_tasks: ./vpc.yml
+- import_tasks: ./subnets.yml
+- import_tasks: ./internet_gateway.yml
+- import_tasks: ./nat_gateway.yml
+- import_tasks: ./routes.yml

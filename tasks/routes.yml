@@ -1,0 +1,70 @@
+---
+# Depends on: internet_gateway.yml
+# Depends on: nat_gateway.yml
+
+
+#### *** WARNING - ec2_vpc_route_table have a bug, or may have undocumented idempotency behaviour  ****
+#### *** Either way, it dosn't seem to be idempotent out of the box, unless you specify its ID.
+#### *** No other ec2 module requires this.
+#### *** Running the task without an ID just keeps creating resources.
+#### *** See https://github.com/ansible/ansible/issues/59863 ***
+#### *** See https://github.com/ansible/ansible/issues/21299 ***
+
+- name: Gather route table info
+  ec2_vpc_route_table_info:
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_key }}"
+    region: "{{ aws_vpc_region }}"
+    filters:
+      vpc_id: "{{ vpc_result.vpc.id }}"
+  register: route_table_info
+
+- debug:
+    var: route_table_info
+
+- debug:
+    var: route_table_info.route_tables | length()
+
+- name: Get the default route table ID
+  set_fact:
+    primary_route_table_id: "{%
+      for tbl in route_table_info.route_tables %}{%
+        for assoc in tbl.associations %}{%
+          if assoc.main == true
+            %}{{ assoc.route_table_id }}{%
+          endif %}{%
+        endfor %}{%
+      endfor
+      %}"
+- debug:
+    var: primary_route_table_id
+
+- name: Tag the primary/public route table
+  ec2_tag:
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_key }}"
+    region: "{{ aws_vpc_region }}"
+    resource: "{{ primary_route_table_id }}"
+    state: present
+    tags: "{{ aws_billing_tags |combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' public routes'})  }}"
+  register: pubroute_tag_result
+
+- debug:
+    var: pubroute_tag_result
+
+- name: Add private route table
+  ec2_vpc_route_table:
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_key }}"
+    vpc_id: "{{ vpc_result.vpc.id }}"
+    region: "{{ aws_vpc_region }}"
+    tags: "{{ aws_billing_tags |combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' private routes' })  }}"
+    subnets: "{{ private_subnet_result['results'] | map(attribute='subnet') | map(attribute='id') | list }}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ nat_gateway_result.nat_gateway_id }}"
+  when: (route_table_info.route_tables | length()) < 2
+  register: private_route_table
+
+- debug:
+    var: private_route_table

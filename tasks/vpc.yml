@@ -1,0 +1,19 @@
+---
+- name: Create a VPC
+  ec2_vpc_net:
+    name: "ANSIBLE {{ aws_resource_tag_slug }} VPC"
+    cidr_block: "{{ aws_vpc_private_net_cidr }}"
+    region: "{{ aws_vpc_region }}"
+    tags: "{{ aws_billing_tags }}"
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_key }}"
+    dns_hostnames: yes
+    dns_support: yes
+    multi_ok: no
+    purge_cidrs: no
+    state: present
+    tenancy: default
+  register: vpc_result
+
+- debug:
+    var: vpc_result

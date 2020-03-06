@@ -1,0 +1,15 @@
+---
+# Depends on: sbunets.yml
+- name: Create an internet gateway for the VPC
+  ec2_vpc_igw:
+    vpc_id: "{{ vpc_result.vpc.id }}"
+    state: present
+    aws_access_key: "{{ aws_api_access_key }}"
+    aws_secret_key: "{{ aws_api_secret_key }}"
+    state: present
+    region: "{{ aws_vpc_region }}"
+    tags: "{{ aws_billing_tags |combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' internet gateway' })  }}"
+  register: igw_result
+
+- debug:
+    var: igw_result

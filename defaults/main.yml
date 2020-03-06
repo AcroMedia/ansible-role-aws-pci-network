@@ -1,0 +1,24 @@
+---
+aws_resource_tag_slug: NotSet
+aws_vpc_region: 'us-east-1'
+aws_vpc_private_net_cidr: '10.0.0.0/16'
+aws_vpc_public_subnets:
+  - cidr: 10.0.11.0/24
+    az: us-east-1a
+  - cidr: 10.0.22.0/24
+    az: us-east-1b
+aws_vpc_private_subnets:
+  - cidr: 10.0.33.0/24
+    az: us-east-1a
+  - cidr: 10.0.44.0/24
+    az: us-east-1b
+aws_billing_tags:
+  foo: bar
+  biz: baz
+aws_api_access_key: 'YOUR_OWN_API_ACCESS_KEY'
+aws_api_secret_key: !vault |
+    $ANSIBLE_VAULT;1.1;AES256
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000
+    000000000000000000000_YOUR_OWN_API_SECRET_KEY_0000000000000000000000000000000000
+    00000000000000000000000000000000000000000000000000000000000000000000000000000000
+    000000000000000000000000000000000000000000000000
