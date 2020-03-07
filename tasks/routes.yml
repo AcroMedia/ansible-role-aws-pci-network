@@ -39,18 +39,22 @@
     var: primary_route_table_id
   when: aws_dump_registered_vars == true
 
-- name: Tag the primary/public route table
-  ec2_tag:
+- name: Configure the primary/public route table, which automatically gets created along with new VPCs
+  ec2_vpc_route_table:
     aws_access_key: "{{ aws_api_access_key }}"
     aws_secret_key: "{{ aws_api_secret_key }}"
+    vpc_id: "{{ vpc_result.vpc.id }}"
     region: "{{ aws_vpc_region }}"
-    resource: "{{ primary_route_table_id }}"
-    state: present
+    route_table_id: "{{ primary_route_table_id }}"
     tags: "{{ aws_billing_tags |combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' public routes'})  }}"
-  register: pubroute_tag_result
+    subnets: "{{ public_subnet_result['results'] | map(attribute='subnet') | map(attribute='id') | list }}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ igw_result.gateway_id }}"
+  register: public_route_table_result
 
 - debug:
-    var: pubroute_tag_result
+    var: public_route_table_result
   when: aws_dump_registered_vars == true
 
 - name: Add private route table
