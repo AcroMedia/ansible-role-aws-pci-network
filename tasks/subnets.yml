@@ -3,7 +3,7 @@
 - name: Create public VPC subnets
   ec2_vpc_subnet:
     region: "{{ aws_vpc_region }}"
-    vpc_id: "{{ vpc_result.vpc.id }}"
+    vpc_id: "{{ aws_vpc_id }}"
     aws_access_key: "{{ aws_api_access_key }}"
     aws_secret_key: "{{ aws_api_secret_key }}"
     cidr: "{{ item.cidr }}"
@@ -26,7 +26,7 @@
 - name: Create private VPC subnets
   ec2_vpc_subnet:
     region: "{{ aws_vpc_region }}"
-    vpc_id: "{{ vpc_result.vpc.id }}"
+    vpc_id: "{{ aws_vpc_id }}"
     aws_access_key: "{{ aws_api_access_key }}"
     aws_secret_key: "{{ aws_api_secret_key }}"
     cidr: "{{ item.cidr }}"

@@ -2,7 +2,7 @@
 # Depends on: sbunets.yml
 - name: Create an internet gateway for the VPC
   ec2_vpc_igw:
-    vpc_id: "{{ vpc_result.vpc.id }}"
+    vpc_id: "{{ aws_vpc_id }}"
     state: present
     aws_access_key: "{{ aws_api_access_key }}"
     aws_secret_key: "{{ aws_api_secret_key }}"

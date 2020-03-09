@@ -16,7 +16,7 @@
     aws_secret_key: "{{ aws_api_secret_key }}"
     region: "{{ aws_vpc_region }}"
     filters:
-      vpc_id: "{{ vpc_result.vpc.id }}"
+      vpc_id: "{{ aws_vpc_id }}"
   register: route_table_info_result
 
 - debug:
@@ -43,7 +43,7 @@
   ec2_vpc_route_table:
     aws_access_key: "{{ aws_api_access_key }}"
     aws_secret_key: "{{ aws_api_secret_key }}"
-    vpc_id: "{{ vpc_result.vpc.id }}"
+    vpc_id: "{{ aws_vpc_id }}"
     region: "{{ aws_vpc_region }}"
     route_table_id: "{{ primary_route_table_id }}"
     tags: "{{ aws_billing_tags |combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' public routes'})  }}"
@@ -61,7 +61,7 @@
   ec2_vpc_route_table:
     aws_access_key: "{{ aws_api_access_key }}"
     aws_secret_key: "{{ aws_api_secret_key }}"
-    vpc_id: "{{ vpc_result.vpc.id }}"
+    vpc_id: "{{ aws_vpc_id }}"
     region: "{{ aws_vpc_region }}"
     tags: "{{ aws_billing_tags |combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' private routes' })  }}"
     subnets: "{{ private_subnet_result['results'] | map(attribute='subnet') | map(attribute='id') | list }}"
