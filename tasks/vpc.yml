@@ -20,4 +20,8 @@
   when: aws_dump_registered_vars == true
 
 - set_fact:
-    aws_vpc_id: vpc_result.vpc.id
+    aws_vpc_id: "{{ vpc_result.vpc.id }}"
+
+- debug:
+    var: aws_vpc_id
+  when: aws_dump_registered_vars == true
