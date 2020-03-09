@@ -13,11 +13,24 @@
     # tags: ec2_vpc_nat_gateway doesnt support tags yet... See ec2_tag task below
     if_exist_do_not_create: true
     state: present
-    subnet_id: "{{ public_subnet_result['results'][0]['subnet']['id'] }}"    # just use the ID of the first public subnet. It's pretty arbitrary
+    subnet_id: "{{ aws_vpc_public_subnet_id_list[0] }}"    # just use the ID of the first public subnet. It's pretty arbitrary
   register: nat_gateway_result
 
 - debug:
     var: nat_gateway_result
+  when: aws_dump_registered_vars == true
+
+- set_fact:
+    aws_vpc_nat_gateway_id: "{{ nat_gateway_result.nat_gateway_id }}"
+    aws_vpc_ngw_id: "{{ nat_gateway_result.nat_gateway_id }}"
+    aws_vpc_nat_gateway_addresses: "{{ nat_gateway_result.nat_gateway_addresses }}"
+
+- debug:
+    var: aws_vpc_nat_gateway_id
+  when: aws_dump_registered_vars == true
+
+- debug:
+    var: aws_vpc_nat_gateway_addresses
   when: aws_dump_registered_vars == true
 
 - name: Tag the NAT gateway
@@ -25,7 +38,7 @@
     aws_access_key: "{{ aws_api_access_key }}"
     aws_secret_key: "{{ aws_api_secret_key }}"
     region: "{{ aws_vpc_region }}"
-    resource: "{{ nat_gateway_result.nat_gateway_id }}"
+    resource: "{{ aws_vpc_nat_gateway_id }}"
     state: present
     tags: "{{ aws_billing_tags | combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' NAT gateway'}) }}"
   register: ngw_tag_result
@@ -42,7 +55,7 @@
     resource: "{{ item.allocation_id }}"
     state: present
     tags: "{{ aws_billing_tags | combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' Nat Gateway EIP'}) }}"
-  with_items: "{{ nat_gateway_result.nat_gateway_addresses }}"
+  with_items: "{{ aws_vpc_nat_gateway_addresses }}"
   register: ngw_eip_tag_result
 
 - debug:

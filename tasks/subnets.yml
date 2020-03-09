@@ -19,8 +19,11 @@
     var: public_subnet_result
   when: aws_dump_registered_vars == true
 
+- set_fact:
+    aws_vpc_public_subnet_id_list: "{{ public_subnet_result['results'] | map(attribute='subnet') | map(attribute='id') | list }}"
+
 - debug:
-    var: public_subnet_result['results'] | map(attribute='subnet') | map(attribute='id') | list
+    var: aws_vpc_public_subnet_id_list
   when: aws_dump_registered_vars == true
 
 - name: Create private VPC subnets
@@ -40,4 +43,11 @@
 
 - debug:
     var: private_subnet_result
+  when: aws_dump_registered_vars == true
+
+- set_fact:
+    aws_vpc_private_subnet_id_list: "{{ private_subnet_result['results'] | map(attribute='subnet') | map(attribute='id') | list }}"
+
+- debug:
+    var: aws_vpc_private_subnet_id_list
   when: aws_dump_registered_vars == true

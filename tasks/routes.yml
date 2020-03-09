@@ -23,6 +23,9 @@
     var: route_table_info_result
   when: aws_dump_registered_vars == true
 
+- set_fact:
+    aws_vpc_route_table_count: "{{ route_table_info_result.route_tables | length }}"
+
 - name: Get the default route table ID
   set_fact:
     primary_route_table_id: "{%
@@ -39,6 +42,9 @@
     var: primary_route_table_id
   when: aws_dump_registered_vars == true
 
+- set_fact:
+    aws_vpc_public_route_table_name: "ANSIBLE {{ aws_resource_tag_slug }} public routes"
+
 - name: Configure the primary/public route table, which automatically gets created along with new VPCs
   ec2_vpc_route_table:
     aws_access_key: "{{ aws_api_access_key }}"
@@ -46,16 +52,19 @@
     vpc_id: "{{ aws_vpc_id }}"
     region: "{{ aws_vpc_region }}"
     route_table_id: "{{ primary_route_table_id }}"
-    tags: "{{ aws_billing_tags |combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' public routes'})  }}"
-    subnets: "{{ public_subnet_result['results'] | map(attribute='subnet') | map(attribute='id') | list }}"
+    tags: "{{ aws_billing_tags |combine({'Name': aws_vpc_public_route_table_name}) }}"
+    subnets: "{{ aws_vpc_public_subnet_id_list }}"
     routes:
       - dest: 0.0.0.0/0
-        gateway_id: "{{ igw_result.gateway_id }}"
+        gateway_id: "{{ aws_vpc_igw_id }}"
   register: public_route_table_result
 
 - debug:
     var: public_route_table_result
   when: aws_dump_registered_vars == true
+
+- set_fact:
+    aws_vpc_private_route_table_name: "ANSIBLE {{ aws_resource_tag_slug }} private routes"
 
 - name: Add private route table
   ec2_vpc_route_table:
@@ -63,12 +72,12 @@
     aws_secret_key: "{{ aws_api_secret_key }}"
     vpc_id: "{{ aws_vpc_id }}"
     region: "{{ aws_vpc_region }}"
-    tags: "{{ aws_billing_tags |combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' private routes' })  }}"
-    subnets: "{{ private_subnet_result['results'] | map(attribute='subnet') | map(attribute='id') | list }}"
+    tags: "{{ aws_billing_tags |combine({'Name': aws_vpc_private_route_table_name })  }}"
+    subnets: "{{ aws_vpc_private_subnet_id_list }}"
     routes:
       - dest: 0.0.0.0/0
-        gateway_id: "{{ nat_gateway_result.nat_gateway_id }}"
-  when: (route_table_info_result.route_tables | length()) < 2
+        gateway_id: "{{ aws_vpc_nat_gateway_id }}"
+  when: aws_vpc_route_table_count < 2
   register: private_route_table_result     #  After this is created, the info will be accessible from "route_table_info_result" above.
 
 - debug:
