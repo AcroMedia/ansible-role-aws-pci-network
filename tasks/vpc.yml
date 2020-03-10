@@ -17,11 +17,11 @@
 
 - debug:
     var: vpc_result
-  when: aws_dump_registered_vars == true
+    verbosity: 1
 
 - set_fact:
     aws_vpc_id: "{{ vpc_result.vpc.id }}"
 
 - debug:
     var: aws_vpc_id
-  when: aws_dump_registered_vars == true
+    verbosity: 1

@@ -19,7 +19,7 @@ Create a segregated network in AWS to support hosting a HA PCI compliant web app
 
 All tasks in the role create registered variables. Subsequent playbook runs also provide these variables.
 
-Set 'aws_dump_registered_vars' to true to have the playbook emit the regstered variable results to your terminal.
+Add -v to your ansible command line to have the playbook emit the regstered variable results to your terminal.
 
 Returned data structures are complex, so it's up to the role consuemr to determine what they need, and how to access it. The role itself accesses registerd variables a lot, so there are already plenty of examples built in.
 
@@ -51,7 +51,6 @@ aws_api_secret_key: !vault |
     00000000000_YOUR_OWN_ANSIBLE_VAULT_ENCRYPTED_API_SECRET_KEY_00000000000000000000
     00000000000000000000000000000000000000000000000000000000000000000000000000000000
     000000000000000000000000000000000000000000000000
-aws_dump_registered_vars: yes
 ```
 
 **requirements.yml**:

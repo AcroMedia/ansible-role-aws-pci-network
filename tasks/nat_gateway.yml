@@ -18,7 +18,7 @@
 
 - debug:
     var: nat_gateway_result
-  when: aws_dump_registered_vars == true
+    verbosity: 1
 
 - set_fact:
     aws_vpc_nat_gateway_id: "{{ nat_gateway_result.nat_gateway_id }}"
@@ -27,11 +27,11 @@
 
 - debug:
     var: aws_vpc_nat_gateway_id
-  when: aws_dump_registered_vars == true
+    verbosity: 1
 
 - debug:
     var: aws_vpc_nat_gateway_addresses
-  when: aws_dump_registered_vars == true
+    verbosity: 1
 
 - name: Tag the NAT gateway
   ec2_tag:
@@ -45,7 +45,7 @@
 
 - debug:
     var: ngw_tag_result
-  when: aws_dump_registered_vars == true
+    verbosity: 1
 
 - name: Tag the elastic IP(s) created by the NAT gateway
   ec2_tag:
@@ -60,4 +60,4 @@
 
 - debug:
     var: ngw_eip_tag_result
-  when: aws_dump_registered_vars == true
+    verbosity: 1

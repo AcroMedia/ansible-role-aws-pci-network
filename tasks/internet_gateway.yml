@@ -15,11 +15,11 @@
 
 - debug:
     var: igw_result
-  when: aws_dump_registered_vars == true
+    verbosity: 1
 
 - set_fact:
     aws_vpc_igw_id: "{{ igw_result.gateway_id }}"
     aws_vpc_internet_gateway_id: "{{ igw_result.gateway_id }}"
 - debug:
     var: aws_vpc_igw_id
-  when: aws_dump_registered_vars == true
+    verbosity: 1

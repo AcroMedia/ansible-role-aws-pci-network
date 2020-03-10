@@ -21,7 +21,7 @@
 
 - debug:
     var: route_table_info_result
-  when: aws_dump_registered_vars == true
+    verbosity: 1
 
 - set_fact:
     aws_vpc_route_table_count: "{{ route_table_info_result.route_tables | length }}"
@@ -40,7 +40,7 @@
 
 - debug:
     var: primary_route_table_id
-  when: aws_dump_registered_vars == true
+    verbosity: 1
 
 - set_fact:
     aws_vpc_public_route_table_name: "ANSIBLE {{ aws_resource_tag_slug }} public routes"
@@ -61,7 +61,7 @@
 
 - debug:
     var: public_route_table_result
-  when: aws_dump_registered_vars == true
+    verbosity: 1
 
 - set_fact:
     aws_vpc_private_route_table_name: "ANSIBLE {{ aws_resource_tag_slug }} private routes"
@@ -78,9 +78,10 @@
       - dest: 0.0.0.0/0
         gateway_id: "{{ aws_vpc_nat_gateway_id }}"
   when: aws_vpc_route_table_count < 2
-  register: private_route_table_result     #  After this is created, the info will be accessible from "route_table_info_result" above.
+  register: private_route_table_result     #  After this is created, the info will be accessible from "route_table_info_result" above. # @TODO - let this tasks be reconfigurable after it's been created.
+
 
 - debug:
     var: private_route_table_result
+    verbosity: 1
   when: private_route_table_result is defined
-    and aws_dump_registered_vars == true
