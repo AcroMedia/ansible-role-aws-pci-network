@@ -1,4 +1,5 @@
 ---
+# Order of tasks is not trivial. Each compoenent depends on the one previous to it.
 - import_tasks: ./vpc.yml
 - import_tasks: ./subnets.yml
 - import_tasks: ./internet_gateway.yml
