@@ -5,7 +5,7 @@
 # - See: https://github.com/ansible/ansible/issues/44339
 # - See: https://github.com/ansible/ansible/pull/46624
 
-- name: Create an NAT gateway to provide internet resources on the private network can access
+- name: Create an NAT gateway so instances on the private network can access the internet
   ec2_vpc_nat_gateway:
     aws_access_key: "{{ aws_api_access_key }}"
     aws_secret_key: "{{ aws_api_secret_key }}"
@@ -33,6 +33,9 @@
     var: aws_vpc_nat_gateway_addresses
     verbosity: 1
 
+- set_fact:
+    _nat_gateway_name: "{{ aws_resource_tag_slug + ' ' + aws_resource_env_slug + '  NAT gateway ' + aws_resource_name_suffix | trim}}"
+
 - name: Tag the NAT gateway
   ec2_tag:
     aws_access_key: "{{ aws_api_access_key }}"
@@ -40,12 +43,15 @@
     region: "{{ aws_vpc_region }}"
     resource: "{{ aws_vpc_nat_gateway_id }}"
     state: present
-    tags: "{{ aws_billing_tags | combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' NAT gateway'}) }}"
+    tags: "{{ aws_billing_tags | combine({'Name': _nat_gateway_name}) }}"
   register: ngw_tag_result
 
 - debug:
     var: ngw_tag_result
     verbosity: 1
+
+- set_fact:
+    _ngw_eip_name: "{{ aws_resource_tag_slug + ' ' + aws_resource_env_slug + '  NAT gateway EIP ' + aws_resource_name_suffix | trim}}"
 
 - name: Tag the elastic IP(s) created by the NAT gateway
   ec2_tag:
@@ -54,7 +60,7 @@
     region: "{{ aws_vpc_region }}"
     resource: "{{ item.allocation_id }}"
     state: present
-    tags: "{{ aws_billing_tags | combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' Nat Gateway EIP'}) }}"
+    tags: "{{ aws_billing_tags | combine({'Name': _ngw_eip_name }) }}"
   with_items: "{{ aws_vpc_nat_gateway_addresses }}"
   register: ngw_eip_tag_result
 

@@ -1,7 +1,8 @@
 ---
 # Depends on: sbunets.yml
 - set_fact:
-    aws_vpc_igw_name: "ANSIBLE {{ aws_resource_tag_slug }} internet gateway"
+    aws_vpc_igw_name: "{{ aws_resource_tag_slug + ' ' + aws_resource_env_slug + ' internet gateway ' + aws_resource_name_suffix | trim }}"
+
 - name: Create an internet gateway for the VPC
   ec2_vpc_igw:
     vpc_id: "{{ aws_vpc_id }}"
@@ -20,6 +21,7 @@
 - set_fact:
     aws_vpc_igw_id: "{{ igw_result.gateway_id }}"
     aws_vpc_internet_gateway_id: "{{ igw_result.gateway_id }}"
+
 - debug:
     var: aws_vpc_igw_id
     verbosity: 1

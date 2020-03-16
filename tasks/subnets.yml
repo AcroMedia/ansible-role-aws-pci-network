@@ -1,5 +1,4 @@
 ---
-# Depends on: vpc.yml
 - name: Create public VPC subnets
   ec2_vpc_subnet:
     region: "{{ aws_vpc_region }}"
@@ -9,7 +8,11 @@
     cidr: "{{ item.cidr }}"
     map_public: yes
     az: "{{ item.az }}"
-    tags: "{{ aws_billing_tags |combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' public subnet ' + item.az})  }}"
+    tags: "{{
+      aws_billing_tags | combine( { 'Name':
+        aws_resource_tag_slug + ' ' + aws_resource_env_slug + ' public subnet ' + item.az + ' ' + aws_resource_name_suffix | trim
+       } )
+    }}"
     purge_tags: no
     state: present
   with_items: "{{ aws_vpc_public_subnets }}"
@@ -35,7 +38,12 @@
     cidr: "{{ item.cidr }}"
     map_public: no
     az: "{{ item.az }}"
-    tags: "{{ aws_billing_tags |combine({'Name': 'ANSIBLE ' + aws_resource_tag_slug + ' private subnet ' + item.az})  }}"
+    tags: "{{
+      aws_billing_tags |
+        combine( { 'Name':
+          aws_resource_tag_slug + ' ' + aws_resource_env_slug + ' private subnet ' + item.az + ' ' + aws_resource_name_suffix | trim
+        } )
+      }}"
     purge_tags: no
     state: present
   with_items: "{{ aws_vpc_private_subnets }}"

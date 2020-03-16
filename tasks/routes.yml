@@ -43,7 +43,7 @@
     verbosity: 1
 
 - set_fact:
-    aws_vpc_public_route_table_name: "ANSIBLE {{ aws_resource_tag_slug }} public routes"
+    aws_vpc_public_route_table_name: "{{ aws_resource_tag_slug + ' ' + aws_resource_env_slug + ' public routes ' + aws_resource_name_suffix | trim }}"
 
 - name: Configure the primary/public route table, which automatically gets created along with new VPCs
   ec2_vpc_route_table:
@@ -64,7 +64,7 @@
     verbosity: 1
 
 - set_fact:
-    aws_vpc_private_route_table_name: "ANSIBLE {{ aws_resource_tag_slug }} private routes"
+    aws_vpc_private_route_table_name: "{{ aws_resource_tag_slug + ' ' + aws_resource_env_slug + ' private routes ' + aws_resource_name_suffix | trim }}"
 
 - name: Add private route table
   ec2_vpc_route_table:
