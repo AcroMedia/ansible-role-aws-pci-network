@@ -68,35 +68,6 @@
 - set_fact:
     aws_vpc_private_route_table_name: "{{ aws_resource_tag_slug + ' ' + aws_resource_env_slug + ' private routes ' + aws_resource_name_suffix | trim }}"
 
-- name: Look for the private route table ID
-  set_fact:
-    private_route_table_ids: '[
-    {% for tbl in route_table_info_result.route_tables %}
-      {% set outer_loop = loop %}
-      {% for assoc in tbl.associations %}
-        {% if assoc.main == false %}
-          {% if assoc.route_table_id != primary_route_table_id %}
-            {% if (loop.index0 > 0) or (outer_loop.index0 > 0) %}
-            ,
-            {% endif %}
-            {"Id": "{{ assoc.route_table_id }}"}
-          {% endif %}
-        {% endif %}
-      {% endfor %}
-    {% endfor %}
-    ]'
-
-- debug:
-    var: private_route_table_ids
-    verbosity: 1
-
-- set_fact:
-    private_route_table_id: "{{ private_route_table_ids[0].Id | default('') }}"
-
-- debug:
-    var: private_route_table_id
-    verbosity: 1
-
 - name: Configure the private route table
   ec2_vpc_route_table:
     aws_access_key: "{{ aws_api_access_key }}"
@@ -104,9 +75,9 @@
     vpc_id: "{{ aws_vpc_id }}"
     region: "{{ aws_vpc_region }}"
     state: present
-    lookup: id
-    route_table_id: "{{ private_route_table_id }}"      # The first time around, private_route_table_id is going to be blank, which conveniently has the effect of creating a new route table. Subsequent runs update the route table by id, which now exists.
-    tags: "{{ aws_billing_tags |combine({'Name': aws_vpc_private_route_table_name}) }}"
+    lookup: tag
+    tags:
+      Name: "{{ aws_vpc_private_route_table_name }}"  # Purposely not assigning any extra tags to private route, since this is our only handle on it.
     purge_tags: no
     subnets: "{{ aws_vpc_private_subnet_id_list }}"
     purge_subnets: no
