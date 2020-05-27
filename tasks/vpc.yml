@@ -1,10 +1,13 @@
----
+----
+- set_fact:
+    _vpc_ansible_host_id: "{{ aws_resource_tag_slug.lower() }}-{{ aws_resource_env_slug.lower() }}-vpc"
+
 - name: Create a VPC
   ec2_vpc_net:
     name: "{{ aws_resource_tag_slug + ' ' + aws_resource_env_slug + ' VPC ' + aws_resource_name_suffix | trim }}"
     cidr_block: "{{ aws_vpc_private_net_cidr }}"
     region: "{{ aws_vpc_region }}"
-    tags: "{{ aws_billing_tags }}"
+    tags: "{{ aws_billing_tags | combine({'ansible-host-id': _vpc_ansible_host_id}) }}"
     aws_access_key: "{{ aws_api_access_key }}"
     aws_secret_key: "{{ aws_api_secret_key }}"
     dns_hostnames: yes
