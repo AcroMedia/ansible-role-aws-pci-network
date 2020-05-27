@@ -2,6 +2,7 @@
 # Depends on: sbunets.yml
 - set_fact:
     aws_vpc_igw_name: "{{ aws_resource_tag_slug + ' ' + aws_resource_env_slug + ' internet gateway ' + aws_resource_name_suffix | trim }}"
+    aws_vpc_igw_ansible_host_id: "{{ aws_resource_tag_slug.lower() }}-{{ aws_resource_env_slug.lower() }}-igw"
 
 - name: Create an internet gateway for the VPC
   ec2_vpc_igw:
@@ -11,7 +12,8 @@
     aws_secret_key: "{{ aws_api_secret_key }}"
     state: present
     region: "{{ aws_vpc_region }}"
-    tags: "{{ aws_billing_tags | combine({'Name': aws_vpc_igw_name })  }}"
+    tags: "{{ aws_billing_tags | combine({'Name': aws_vpc_igw_name,
+    'ansible-host-id': aws_vpc_igw_ansible_host_id })  }}"
   register: igw_result
 
 - debug:
