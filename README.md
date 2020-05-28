@@ -33,7 +33,7 @@ Returned data structures are complex, so it's up to the role consuemr to determi
  - No spaces or punctuation. This will be used to construct meaningful resource names that may also be used programmatically.
 
 ##### aws_resource_name_suffix
- - Will be added to resource names and descriptions to indicate the resource was created programmatically. Spaces are ok, but avoid punctuation. You can set this to an empty string `''` if you don't need it.
+ - Required, but can be a zero length string. Defaults to 'by Ansible'. Will be added to resource titles and descriptions (but not ids) to indicate the resource was created programmatically. Spaces are ok, but avoid punctuation. You can set this to an empty string `''` if you don't need it.
 
 ##### aws_vpc_region
  - The AWS region you want to create your VPC in.
