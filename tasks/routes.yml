@@ -86,6 +86,8 @@
         gateway_id: "{{ aws_vpc_nat_gateway_id }}"
     purge_routes: no
   register: private_route_table_result
+  when: aws_vpc_private_subnets | length > 0
+    and aws_vpc_private_subnets is not string
 
 - debug:
     var: private_route_table_result

@@ -3,5 +3,7 @@
 - import_tasks: ./vpc.yml
 - import_tasks: ./subnets.yml
 - import_tasks: ./internet_gateway.yml
-- import_tasks: ./nat_gateway.yml
+- include_tasks: ./nat_gateway.yml
+  when: aws_vpc_private_subnets | length > 0
+    and aws_vpc_private_subnets is not string
 - import_tasks: ./routes.yml
