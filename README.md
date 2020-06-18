@@ -50,8 +50,10 @@ Returned data structures are complex, so it's up to the role consuemr to determi
   aws_vpc_public_subnets:
     - cidr: 10.0.1.0/24
       az: us-east-1a
+      app_node_count: 0
     - cidr: 10.0.2.0/24
       az: us-east-1b
+      app_node_count: 0
   ```
 
 ##### aws_vpc_private_subnets
@@ -62,8 +64,10 @@ Returned data structures are complex, so it's up to the role consuemr to determi
   aws_vpc_private_subnets:
     - cidr: 10.0.101.0/24
       az: us-east-1a
+      app_node_count: 2
     - cidr: 10.0.102.0/24
       az: us-east-1b
+      app_node_count: 2
   ```
 **aws_billing_tags**: Arbitrary name value pairs for your own use. If not using, specify an empty list `[]`. All resources created will be tagged with the name/values you create here.
 

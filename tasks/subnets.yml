@@ -29,6 +29,17 @@
     var: aws_vpc_public_subnet_id_list
     verbosity: 1
 
+- name: Merge public subnet IDs to subnet specification as new variable for use in EC2 app node creation in aws-pci-instances role
+  set_fact:
+    aws_vpc_public_subnets_with_ids: "{{ public_subnet_result.results | json_query(query) }}"
+  vars:
+    query: "[].{cidr: item.cidr, az: item.az, app_node_count: item.app_node_count, id: subnet.id}"
+  ignore_errors: true
+
+- debug:
+    var: aws_vpc_public_subnets_with_ids
+    verbosity: 1
+
 - name: Create private VPC subnets
   ec2_vpc_subnet:
     region: "{{ aws_vpc_region }}"
@@ -58,4 +69,15 @@
 
 - debug:
     var: aws_vpc_private_subnet_id_list
+    verbosity: 1
+
+- name: Merge private subnet IDs to subnet specification as new variable for use in EC2 app node creation in aws-pci-instances role
+  set_fact:
+    aws_vpc_private_subnets_with_ids: "{{ private_subnet_result.results | json_query(query) }}"
+  vars:
+    query: "[].{cidr: item.cidr, az: item.az, app_node_count: item.app_node_count, id: subnet.id}"
+  ignore_errors: true
+
+- debug:
+    var: aws_vpc_public_subnets_with_ids
     verbosity: 1
