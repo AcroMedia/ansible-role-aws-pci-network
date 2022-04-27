@@ -1,9 +1,12 @@
 ---
-#aws_resource_tag_slug: Specifically not set. This needs to be defined by the consuming playbook.
-#aws_resource_env_slug: Specifically not set. This needs to be defined by the consuming playbook.
+# -----------------------------------------------------------
+# You should define all of the following in your playbook's group vars.
+# -----------------------------------------------------------
+aws_resource_tag_slug: UNDEFINED
+aws_resource_env_slug: UNDEFINED
 aws_resource_name_suffix: by Ansible
-#aws_vpc_region: Specifically not set. This needs to be defined by the consuming playbook.
-#aws_vpc_private_net_cidr: Specifically not set. This needs to be defined by the consuming playbook.
+aws_vpc_region: NA-INVALID-0
+aws_vpc_private_net_cidr: 172.31.0.0/16  # Be sure to define as something that won't conflict, if you plan to use vpc peering.
 aws_vpc_public_subnets: []
 aws_vpc_private_subnets: []
 aws_billing_tags: []
@@ -14,3 +17,10 @@ aws_api_secret_key: !vault |
     000000000000000000000_YOUR_OWN_API_SECRET_KEY_0000000000000000000000000000000000
     00000000000000000000000000000000000000000000000000000000000000000000000000000000
     000000000000000000000000000000000000000000000000
+
+# -----------------------------------------------------------
+# These are OK to leave as defaults, but if you need to use them in a play that didn't call the role,
+# you'll want to copy them into your playbook's group vars.
+# -----------------------------------------------------------
+aws_vpc_name: "{{ (aws_resource_tag_slug + ' ' + aws_resource_env_slug + ' VPC ' + aws_resource_name_suffix) | trim }}"
+vpc_ansible_host_id: "{{ aws_resource_tag_slug.lower() }}-{{ aws_resource_env_slug.lower() }}-vpc"
